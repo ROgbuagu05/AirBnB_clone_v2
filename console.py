@@ -123,8 +123,8 @@ class HBNBCommand(cmd.Cmd):
             print("** class doesn't exist **")
             return
         new_instance = HBNBCommand.classes[arg]()
-        if len(args) > 1:
-            for param in ags[1:]:
+        if len(arguments) > 1:
+            for param in arguments[1:]:
                 attribute = param.split('=')
                 attribute[1] = attribute[1].replace('_', ' ').replace('"', '')
                 if attribute[1].lstrip('-').isdigit():
