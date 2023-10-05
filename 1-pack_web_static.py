@@ -8,16 +8,16 @@ import os
 
 def do_pack():
     """Generates a .tgz archive from the contents of the web_static folder"""
-    # Create the versions directory if it doesn't exist
-    local("mkdir -p versions")
-
-    # Create the archive name
-    archive_name = "web_static_" + datetime.now().strftime("%Y%m%d%H%M%S") + ".tgz"
-    archive_path = "versions/" + archive_name
-
-    # Compress the web_static folder into the archive
-    result = local("tar -czvf {} web_static".format(archive_path))
-    if result.succeeded:
-        return archive_path
-    else:
+    dt = datetime.utcnow()
+    file = "versions/web_static_{}{}{}{}{}{}.tgz".format(dt.year,
+                                                         dt.month,
+                                                         dt.day,
+                                                         dt.hour,
+                                                         dt.minute,
+                                                         dt.second)
+    if os.path.isdir("versions") is False:
+        if local("mkdir -p versions").failed is True:
+            return None
+    if local("tar -cvzf {} web_static".format(file)).failed is True:
         return None
+    return file
