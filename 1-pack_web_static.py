@@ -17,12 +17,8 @@ def do_pack():
         archive_path = "versions/" + archive_name
 
         # Compress the web_static folder into the archive
-        local("tar -czvf {} web_static".format(archive_path))
-
-        # Check if the archive has been correctly generated
-        if local("test -f {}".format(archive_path)).succeeded:
-            return archive_path
-        else:
-            return None
-    except Exception as e:
-        return None
+        result = local("tar -czvf {} web_static".format(archive_path))
+        if result.succeeded:
+             return archive_path
+         else:
+             return None
