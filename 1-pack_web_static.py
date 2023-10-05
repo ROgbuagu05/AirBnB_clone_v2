@@ -7,19 +7,19 @@ from fabric.api import local
 import os
 
 def do_pack():
-    """Generates a .tgz archive."""
-    now = datetime.now().strftime("%Y%m%d%H%M%S")
-
-    # create folder versions if it doesn’t exist
+    """Generates a .tgz archive from the contents of the web_static folder"""
+    # Create the versions directory if it doesn't exist
     local("mkdir -p versions")
 
-    # extract the contents of a tar archive
-    result = local("tar -czvf versions/web_static_{}.tgz web_static"
-                   .format(now))
-    if result.failed:
-        return None
-    else:
-        return result
+    # Create the archive name
+    archive_name = "web_static_" + datetime.now().strftime("%Y%m%d%H%M%S") + ".tgz"
+    archive_path = "versions/" + archive_name
 
-if __name__ == "__main__":
-    do_pack()
+    # Compress the web_static folder into the archive
+    local("tar -czvf {} web_static".format(archive_path))
+
+    # Check if the archive has been correctly generated
+    if local("test -f {}".format(archive_path)).succeeded:
+        return archive_path
+    else:
+        return None
