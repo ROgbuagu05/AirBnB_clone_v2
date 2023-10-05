@@ -9,11 +9,7 @@ import os
 def do_pack():
     """Generates a .tgz archive from the contents"""
     now = datetime.now().strftime("%Y%m%d%H%M%S")
-
-    # create folder versions if it doesn’t exist
     local("mkdir -p versions")
-
-    # extract the contents of a tar archive
     result = local("tar -czvf versions/web_static_{}.tgz web_static"
                    .format(now))
     if result.failed:
