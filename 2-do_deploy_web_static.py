@@ -9,48 +9,28 @@ import os
 env.hosts = ['54.172.84.11', '18.210.17.119']
 env.user = 'ubuntu'
 
-def do_pack():
-    """Generates a .tgz archive from the contents"""
-    now = datetime.now().strftime("%Y%m%d%H%M%S")
-    local("mkdir -p versions")
-    result = local("tar -czvf versions/web_static_{}.tgz web_static"
-                   .format(now))
-    if result.failed:
-        return None
-    else:
-        return result
-
-
 def do_deploy(archive_path):
-    """Distributes an archive to your web servers."""
-    if not os.path.exists(archive_path):
+    """Distributes an archive to your web servers.
+
+    Returns:
+        (bool): `True` if all operations successful, `False` otherwise
+    """
+    if archive_path is None or not os.path.exists(archive_path):
         return False
-    file_name = os.path.basename(archive_path)
-    folder_name = file_name.replace(".tgz", "")
-    folder_path = "/data/web_static/releases/{}/".format(folder_name)
-    success = False
 
-    try:
-        put(archive_path, "/tmp/{}".format(file_name))
+    f_name = path.basename(archive_path)
+    d_name = f_name.split('.')[0]
 
-        run("mkdir -p {}".format(folder_path))
+    put(local_path=archive_path, remote_path='/tmp/')
+    run('mkdir -p /data/web_static/releases/{}/'.format(d_name))
+    run('tar -xzf /tmp/{} -C /data/web_static/releases/{}/'.format(
+        f_name, d_name))
+    run('rm /tmp/{}'.format(f_name))
+    run('mv /data/web_static/releases/{}/web_static/* '.format(d_name) +
+        '/data/web_static/releases/{}/'.format(d_name))
+    run('rm -rf /data/web_static/releases/{}/web_static'.format(d_name))
+    run('rm -rf /data/web_static/current')
+    run('ln -s /data/web_static/releases/{}/ /data/web_static/current'.format(
+        d_name))
 
-        run("tar -xzf /tmp/{} -C {}".format(file_name, folder_path))
-
-        run("rm -rf /tmp/{}".format(file_name))
-
-        run("mv {}web_static/* {}".format(folder_path, folder_path))
-
-        run("rm -rf {}web_static".format(folder_path))
-
-        run("rm -rf /data/web_static/current")
-
-        run("ln -s {} /data/web_static/current".format(folder_path))
-
-        print('New version deployed!')
-        success = True
-
-    except Exception:
-        success = False
-        print("Could not deploy")
-    return success
+    return True
