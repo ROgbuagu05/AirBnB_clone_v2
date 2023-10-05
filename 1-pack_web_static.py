@@ -3,19 +3,17 @@
 Fabric script that generates a .tgz archive from the contents
 """
 from datetime import datetime
-from fabric.api import local
-from fabric.decorators import runs_once
+from fabric.api import local, settings
 import os
 
-@runs_once
 def do_pack():
     """Generates a .tgz archive from the contents"""
+    datetime_now = datetime.utcnow().strftime("%Y%m%d%H%M%S")
+    archive_path = "versions/web_static_{}.tgz".format(datetime_now)
+    cmd_compress = "tar -cvzf {} web_static/".format(archive_path)
     local("mkdir -p versions")
-    path = ("versions/web_static_{}.tgz"
-            .format(datetime.strftime(datetime.now(), "%Y%m%d%H%M%S")))
-    result = local("tar -cvzf {} web_static"
-                   .format(path))
-
+    with settings(warn_only=True):
+        result = local(cmd_compress, capture=True)
     if result.failed:
         return None
-    return path
+    return archive_path
