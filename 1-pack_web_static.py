@@ -8,18 +8,12 @@ import os
 
 def do_pack():
     """Generates a .tgz archive."""
-    now = datetime.now().strftime("%Y%m%d%H%M%S")
-
-    # creates folder versions if it doesn’t exist
-    local("mkdir -p versions")
-
-    # extracts the contents of a tar archive
-    result = local("tar -czvf versions/web_static_{}.tgz web_static"
-                   .format(now))
-    if result.failed:
+    try:
+        now = dt.now()
+        local("mkdir -p versions/")
+        time_format = now.strftime("%Y%m%d%H%M%S")
+        archive_name = "web_static_" + time_format + ".tgz"
+        archive_path = os.path.join("versions", archive_name)
+        return archive_path
+    except Exception as e:
         return None
-    else:
-        return result
-
-if __name__ == "__main__":
-    do_pack()
