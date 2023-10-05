@@ -8,12 +8,14 @@ import os
 
 def do_pack():
     """Generates a .tgz archive from the contents"""
-    datetime_now = datetime.utcnow().strftime("%Y%m%d%H%M%S")
-    archive_path = "versions/web_static_{}.tgz".format(datetime_now)
-    cmd_compress = "tar -cvzf {} web_static/".format(archive_path)
+    now = datetime.now().strftime("%Y%m%d%H%M%S")
     local("mkdir -p versions")
-    with settings(warn_only=True):
-        result = local(cmd_compress, capture=True)
+    result = local("tar -czvf versions/web_static_{}.tgz web_static"
+                   .format(now))
     if result.failed:
         return None
-    return archive_path
+    else:
+        return result
+
+if __name__ == "__main__":
+    do_pack()
